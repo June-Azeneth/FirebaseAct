@@ -17,6 +17,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.FirebaseApp;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -31,6 +32,8 @@ public class MainActivity extends AppCompatActivity {
     final String TAG = "FIRESTORE";
     FirebaseFirestore db;
 
+    Intent gotoHomePage;
+
     Button login;
     TextView toSignUp;
     Intent navToSignUp;
@@ -41,11 +44,12 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        db = FirebaseFirestore.getInstance();
+
         login = findViewById(R.id.loginbtn);
         toSignUp = findViewById(R.id.navToSignUp);
         email = findViewById(R.id.txtEditUsername_LogIn);
         password = findViewById(R.id.txtEditPass_login);
-
 
         toSignUp.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -62,7 +66,7 @@ public class MainActivity extends AppCompatActivity {
                 String passwordInput = password.getText().toString();
 
                 if(!emailInput.isEmpty()){
-                    //searchUser();
+                    searchUser(emailInput);
                 }else
                 {
                     Toast.makeText(MainActivity.this,"Please fill in all the required details", Toast.LENGTH_SHORT).show();
@@ -72,11 +76,10 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public void searchUser(String uname)
+    public void searchUser(String emails)
     {
-
         db.collection("EldriodActivity")
-                .document(uname)
+                .document(emails)
                 .get()
                 .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                     @Override
@@ -89,7 +92,8 @@ public class MainActivity extends AppCompatActivity {
                             Toast.makeText(MainActivity.this,"User does not exist", Toast.LENGTH_SHORT).show();
                         }
                         else {
-                            //passwordActionsEditText.setText(queriedPassword);
+                            //gotoHomePage = new Intent(MainActivity.this, home_page.class);
+                            password.setText(queriedPassword);
                         }
                     }
                 })

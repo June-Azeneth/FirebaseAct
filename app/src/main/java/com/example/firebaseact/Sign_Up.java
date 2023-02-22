@@ -9,6 +9,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -18,6 +19,8 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.FirebaseApp;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -32,10 +35,13 @@ public class Sign_Up extends AppCompatActivity {
     final String TAG = "FIRESTORE";
     FirebaseFirestore db;
 
+    private FirebaseAuth mAuthSU;
+
     Button signUp;
     TextView toLogIn;
     Intent navToLogIn;
     TextInputEditText username, email, phone, address, password, confpass;
+    ProgressBar progressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,6 +60,8 @@ public class Sign_Up extends AppCompatActivity {
         address = findViewById(R.id.txtEditAddress);
         password = findViewById(R.id.txtEditPass);
         confpass = findViewById(R.id.txtEditConfPass);
+        progressBar = findViewById(R.id.progressBar);
+        mAuthSU = FirebaseAuth.getInstance();
 
         //NAV TO LOGIN PAGE
         toLogIn.setOnClickListener(new View.OnClickListener() {
@@ -75,9 +83,8 @@ public class Sign_Up extends AppCompatActivity {
                 String passwordInput = password.getText().toString();
                 String confPassInput = confpass.getText().toString();
 
-                if (!usernameInput.isEmpty() || !emailInput.isEmpty() || !phoneInput.isEmpty() || !addressInput.isEmpty() || !passwordInput.isEmpty() || !confPassInput.isEmpty())
-                {
-                    createAccount(usernameInput,emailInput,phoneInput,addressInput,passwordInput);
+                if (!usernameInput.isEmpty() || !emailInput.isEmpty() || !phoneInput.isEmpty() || !addressInput.isEmpty() || !passwordInput.isEmpty() || !confPassInput.isEmpty()) {
+                    createAccount(usernameInput, emailInput, phoneInput, addressInput, passwordInput);
                 } else {
                     Toast.makeText(Sign_Up.this, "Please fill in all the required details", Toast.LENGTH_SHORT).show();
                 }
@@ -90,9 +97,9 @@ public class Sign_Up extends AppCompatActivity {
         Map<String, Object> user = new HashMap<>();
         user.put("username", username);
         user.put("password", password);
-        user.put("email",email);
-        user.put("phone",phone);
-        user.put("address",address);
+        user.put("email", email);
+        user.put("phone", phone);
+        user.put("address", address);
 
         // Add a new document with a generated ID
         db.collection("EldroidActivity").document(username)
@@ -102,13 +109,15 @@ public class Sign_Up extends AppCompatActivity {
                     public void onSuccess(Void unused) {
                         Log.d(TAG, "DocumentSnapshot added with ID: " + username);
                         Toast.makeText(Sign_Up.this, "Successfully Added " + username, Toast.LENGTH_SHORT).show();
+                        //progressBar.setVisibility(View.GONE);
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
                         Toast.makeText(Sign_Up.this, "Error adding user " + e, Toast.LENGTH_SHORT).show();
-                        Log.d(TAG, "Error adding document", e);
+                        Log.d(TAG, "Error creating account", e);
+                        //progressBar.setVisibility(View.GONE);
                     }
                 });
     }
